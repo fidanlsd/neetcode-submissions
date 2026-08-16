@@ -1,41 +1,47 @@
-public class Solution {
-    public List<List<string>> SolveNQueens(int n) {
-        var res = new List<List<string>>();
-        var board = new char[n][];
-        for (int i = 0; i < n; i++) {
-            board[i] = new string('.', n).ToCharArray();
-        }
-        Backtrack(0, board, res);
-        return res;
+public class TrieNode {
+    public TrieNode[] children = new TrieNode[26];
+    public bool endOfWord = false;
+}
+
+public class PrefixTree {
+    private TrieNode root;
+
+    public PrefixTree() {
+        root = new TrieNode();
     }
 
-    private void Backtrack(int r, char[][] board, List<List<string>> res) {
-        if (r == board.Length) {
-            var copy = new List<string>();
-            foreach (var row in board) {
-                copy.Add(new string(row));
+    public void Insert(string word) {
+        TrieNode cur = root;
+        foreach (char c in word) {
+            int i = c - 'a';
+            if (cur.children[i] == null) {
+                cur.children[i] = new TrieNode();
             }
-            res.Add(copy);
-            return;
+            cur = cur.children[i];
         }
-        for (int c = 0; c < board.Length; c++) {
-            if (IsSafe(r, c, board)) {
-                board[r][c] = 'Q';
-                Backtrack(r + 1, board, res);
-                board[r][c] = '.';
-            }
-        }
+        cur.endOfWord = true;
     }
 
-    private bool IsSafe(int r, int c, char[][] board) {
-        for (int i = r - 1; i >= 0; i--) {
-            if (board[i][c] == 'Q') return false;
+    public bool Search(string word) {
+        TrieNode cur = root;
+        foreach (char c in word) {
+            int i = c - 'a';
+            if (cur.children[i] == null) {
+                return false;
+            }
+            cur = cur.children[i];
         }
-        for (int i = r - 1, j = c - 1; i >= 0 && j >= 0; i--, j--) {
-            if (board[i][j] == 'Q') return false;
-        }
-        for (int i = r - 1, j = c + 1; i >= 0 && j < board.Length; i--, j++) {
-            if (board[i][j] == 'Q') return false;
+        return cur.endOfWord;
+    }
+
+    public bool StartsWith(string prefix) {
+        TrieNode cur = root;
+        foreach (char c in prefix) {
+            int i = c - 'a';
+            if (cur.children[i] == null) {
+                return false;
+            }
+            cur = cur.children[i];
         }
         return true;
     }
